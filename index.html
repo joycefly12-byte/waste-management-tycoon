@@ -174,7 +174,7 @@ render=function(){
  if(!tabs.some(x=>x.key===v7Tab))v7Tab=tabs.find(x=>x.key===defaultTab)?.key||tabs[0]?.key||'';
  nav.innerHTML='<div class="eyebrow">ECO CITY / V7</div>';
  if(st.host){tabs.forEach(x=>{const b=document.createElement('button');b.textContent=x.label;b.setAttribute('aria-current',String(x.key===v7Tab));b.onclick=()=>v7Navigate(x.key);nav.append(b);if(x.key===v7Tab)centre.append(x.node)})}else{
- const order=st.me.phase==='choose'?['city','build','trade','research','maint']:st.me.phase==='quiz'?['quiz','results','city']:['final','reviewlast','results','city','board'];
+ const order=st.me.phase==='choose'?['city','build','maint','research','trade']:st.me.phase==='quiz'?['quiz','results','city']:['final','reviewlast','results','city','board'];
  const work=document.createElement('div');work.className='v7-workgrid';
  order.forEach(key=>{const x=tabs.find(a=>a.key===key);if(x){if(['trade','research','maint'].includes(key))work.append(x.node);else centre.append(x.node)}});
  if(work.children.length)centre.append(work);
