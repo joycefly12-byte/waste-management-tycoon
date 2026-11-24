@@ -37,7 +37,22 @@ body.v7-active main{max-width:none}body.v7-active header{padding:8px 20px}body.v
 .district-pop{position:absolute;top:-10px;background:#e9c275;color:#2e412c;font-size:10px;padding:4px 6px;border-radius:4px;white-space:nowrap;animation:districtPop .5s ease-out both}.district-changed svg,.district-event svg{animation:districtRise .7s cubic-bezier(.2,.8,.3,1) both}.district-note{margin:8px 0 0;font-size:11px;color:#405a43}.district-event{display:flex;align-items:center;gap:5px;font-size:11px;padding:5px 0;border-bottom:1px solid #bbc9b2}.district-event svg{width:55px;flex-shrink:0}
 @keyframes districtRise{0%{opacity:.25;transform:translateY(12px) scale(.7);filter:brightness(1.4)}65%{opacity:1;transform:translateY(-5px) scale(1.08)}100%{transform:translateY(0) scale(1)}}@keyframes districtPop{from{opacity:0;translate:0 9px}to{opacity:1;translate:0 0}}
 @media(max-width:850px){.v7-map .city.district-map{min-height:320px}}@media(prefers-reduced-motion:reduce){.district-changed svg,.district-event svg,.district-pop{animation:none!important}}
-.v7-map .city.district-map>.district-terrain{max-width:none!important;margin:0!important;width:100%;height:100%}.v7-map .district-map>span.district-planned{opacity:1}.v7-map .district-map>span:focus-visible{outline:3px solid #e8bf76;outline-offset:4px;border-radius:5px}</style><header><small>YEAR 9 SCIENCE · SUSTAINABLE FUTURES · V7</small><h1>Waste Management Tycoon</h1>Build smarter. Trade resources. Protect your future.</header><main><div id="error" role="status"></div><div id="app"></div></main><script>
+.v7-map .city.district-map>.district-terrain{max-width:none!important;margin:0!important;width:100%;height:100%}.v7-map .district-map>span.district-planned{opacity:1}.v7-map .district-map>span:focus-visible{outline:3px solid #e8bf76;outline-offset:4px;border-radius:5px}
+/* V7.2 classroom usability */
+body:not(.v7-active) main section:not(.hero),body:not(.v7-active) .steps div{color:#203b33;background:#f3f0e3}
+body:not(.v7-active) main section:not(.hero) label{color:#203b33}
+input,select,textarea{color:#203b33}input::placeholder,textarea::placeholder{color:#64756e;opacity:1}
+.v7-shell.student{grid-template-columns:minmax(0,1fr) clamp(330px,30vw,470px)}
+.v7-shell.student .v7-nav{display:none}.v7-shell.student .v7-main{grid-column:1;grid-row:2}.v7-shell.student .v7-side{grid-column:2;grid-row:2;padding:18px}
+.v7-shell.student .v7-side section{font-size:15px;padding:16px}.v7-shell.student .v7-side h2{font-size:21px}.v7-shell.student .v7-resource div{font-size:13px;padding:12px}
+.v7-shell.student .v7-map .district-map{aspect-ratio:2.15;min-height:290px;max-height:410px}
+.v7-shell.student .v7-main .grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.v7-workgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.v7-workgrid section{min-width:0;margin:0}.v7-workgrid .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.v7-workgrid .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.v7-main .question .answer-wrong{background:#fbe2dd!important;border:2px solid #a63a30!important;color:#812d25!important;opacity:1}.v7-main .question .answer-correct{background:#dcebd4!important;border:2px solid #387344!important;color:#205332!important;opacity:1}
+.quiz-review{border:1px solid #a5b49b;border-radius:8px;padding:14px;margin:12px 0;background:#f8f7eb}.quiz-review h3{font-size:16px}.quiz-review p{margin:6px 0}.quiz-review button:disabled{cursor:default;opacity:1}.quiz-message{font-weight:650;padding:10px;background:#f7e8c9;color:#573b22;border-radius:5px}
+@media(max-width:1000px){.v7-shell.student{grid-template-columns:minmax(0,1fr) 320px}.v7-workgrid{grid-template-columns:1fr}}
+@media(max-width:850px){.v7-shell.student{grid-template-columns:1fr;height:auto}.v7-shell.student .v7-main{grid-column:1;grid-row:3}.v7-shell.student .v7-side{grid-column:1;grid-row:2}.v7-shell.student .v7-map .district-map{min-height:320px}}
+</style><header><small>YEAR 9 SCIENCE · SUSTAINABLE FUTURES · V7</small><h1>Waste Management Tycoon</h1>Build smarter. Trade resources. Protect your future.</header><main><div id="error" role="status"></div><div id="app"></div></main><script>
 const $=x=>document.getElementById(x),esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let session=null,st=null,pick=[],busy=false,polling=false,last='';try{session=JSON.parse(sessionStorage.getItem('tycoon'))}catch{};
 async function api(op,more={}){let r=await fetch('/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op,...session,...more})}),d=await r.json();if(!r.ok)throw Error(d.error);return d}
 function showError(e){$('error').textContent=e.message||String(e)}
@@ -101,6 +116,11 @@ if(change&&change.until>Date.now()){el.classList.add('district-changed');const p
 const note=document.createElement('p');note.className='district-note';note.textContent=t.owned.length+' / '+st.assets.length+' districts developed · Select a plot to manage its facility';city.append(note);
 }
 
+function answerReview(f){
+if(!f||f.retry||!Array.isArray(f.options))return '';
+return '<div class="quiz-review"><h3>Question '+(f.q+1)+' feedback</h3><p>'+esc(f.question)+'</p>'+f.options.map((x,i)=>'<button disabled class="alt '+(i===f.correct?'answer-correct':i===f.choice||i===f.previousWrong?'answer-wrong':'')+'">'+esc(x)+(i===f.correct?' — Correct answer':i===f.choice||i===f.previousWrong?' — Incorrect choice':'')+'</button>').join('')+'<p class="quiz-message">'+esc(f.text)+'</p></div>';
+}
+let quizSeen='';
 let v7Tab='',v7Context='',v7Scroll={};
 const v6Render=render;
 function v7Navigate(key){const old=document.querySelector('.v7-main');if(old)v7Scroll[v7Tab]=old.scrollTop;v7Tab=key;render()}
@@ -110,7 +130,7 @@ render=function(){
  document.body.classList.toggle('v7-active',!!(session&&st&&st.phase!=='lobby'));
  if(!session||!st||st.phase==='lobby'){v7Tab='';v7Context='';return}
  const app=$('app'),parts=Array.from(app.children),top=parts.shift();if(!top)return;
- const shell=document.createElement('div');shell.className='v7-shell'+(st.host?' teacher':'');
+ const shell=document.createElement('div');shell.className='v7-shell'+(st.host?' teacher':' student');
  const hud=document.createElement('div');hud.className='v7-top';hud.append(top);
  const nav=document.createElement('nav');nav.className='v7-nav';nav.setAttribute('aria-label','City navigation');
  const centre=document.createElement('div');centre.className='v7-main';
@@ -132,28 +152,38 @@ render=function(){
   if(city){const stats=city.querySelector('.stats');if(stats)hud.append(stats);city.classList.add('v7-map');city.querySelector('h3')?.remove();decorateDistricts(city,t);add('city','City map',city)}
   const invest=find(/Choose up to two/i),trade=find(/Resource exchange/i),research=find(/Infrastructure upgrades/i),maint=find(/Maintenance/i),results=find(/Year results/i),quiz=parts.find(el=>el.classList.contains('question')),feedback=parts.find(el=>el.id==='feedback'),ready=find(/Ready for the next/i),final=find(/Final city score/i),board=find(/leaderboard/i);
   add('build','Build facilities',invest);add('trade','Resource exchange',trade);add('research','Research lab',research);add('maint','Maintenance',maint);add('quiz','Science challenge',quiz);add('results','Year report',results);add('final','Final report',final);add('board','Leaderboard',board);
-  if(ready)side.append(ready);if(feedback)side.append(feedback);const recent=Object.entries(districtChanges).filter(([i,c])=>c.until>Date.now());if(recent.length){const n=document.createElement('section');n.innerHTML='<div class="tag">City development</div>'+recent.map(([i,c])=>'<div class="district-event">'+art(+i,t.levels?.[i]||1,t.damaged?.includes(+i))+'<div><b>'+esc(st.assets[i].n)+'</b><br>'+esc(c.label)+'</div></div>').join('');side.append(n)}
+  if(ready)side.append(ready);if(feedback)feedback.remove();const recent=Object.entries(districtChanges).filter(([i,c])=>c.until>Date.now());if(recent.length){const n=document.createElement('section');n.innerHTML='<div class="tag">City development</div>'+recent.map(([i,c])=>'<div class="district-event">'+art(+i,t.levels?.[i]||1,t.damaged?.includes(+i))+'<div><b>'+esc(st.assets[i].n)+'</b><br>'+esc(c.label)+'</div></div>').join('');side.append(n)}
   const resources=document.createElement('div');resources.className='v7-resource';resources.innerHTML=kinds.map((k,i)=>'<div>'+k+'<strong>'+esc(t.w?.[i]??0)+'</strong></div>').join('');side.append(resources);
   if(invest){
    const summary=document.createElement('p');summary.className='v7-summary';summary.textContent=invest.querySelector('p')?.textContent||'';side.append(summary);
    const lock=Array.from(invest.querySelectorAll('button')).find(b=>(b.getAttribute('onclick')||'').startsWith("act('invest'"));
    if(lock){const sticky=lock.cloneNode(true);sticky.classList.add('v7-lock');side.append(sticky);lock.closest('p')?.remove()}
   }
+  if(quiz){
+   const f=t.feedback;
+   if(f?.retry&&f.q===t.q){const buttons=quiz.querySelectorAll('button');const wrong=buttons[f.choice];if(wrong){wrong.classList.add('answer-wrong');wrong.disabled=true;wrong.textContent+=' — Incorrect choice'}const msg=document.createElement('p');msg.className='quiz-message';msg.textContent=f.text;quiz.append(msg)}
+   else if(f?.options)quiz.insertAdjacentHTML('afterbegin',answerReview(f));
+  }else if(t.feedback?.options){const review=document.createElement('section');review.className='question';review.innerHTML=answerReview(t.feedback);add('reviewlast','Last question feedback',review)}
   if(city)city.querySelectorAll('.city > span').forEach((el,i)=>{
    el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label',st.assets[i].n+' — view facility');
-   const go=()=>{if(t.phase!=='choose')return;v7Navigate(t.damaged?.includes(i)?'maint':t.owned.includes(i)?'research':'build');const target=t.owned.includes(i)?document.querySelectorAll('.v7-main .upgrade-row')[t.owned.indexOf(i)]:document.querySelectorAll('.v7-main .tile')[i];target?.scrollIntoView({block:'nearest'})};
+   const go=()=>{if(t.phase!=='choose')return;const target=t.damaged?.includes(i)?maint:t.owned.includes(i)?research:invest;const item=t.damaged?.includes(i)?target:t.owned.includes(i)?target?.querySelectorAll('.upgrade-row')[t.owned.indexOf(i)]:target?.querySelectorAll('.tile')[i];(item||target)?.scrollIntoView({block:'nearest',behavior:'smooth'})};
    el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}
   });
  }
  const defaultTab=st.host?'board':st.me?.phase==='quiz'?'quiz':st.phase==='finished'?'final':st.me?.phase==='done'?'results':'city';
  if(!tabs.some(x=>x.key===v7Tab))v7Tab=tabs.find(x=>x.key===defaultTab)?.key||tabs[0]?.key||'';
  nav.innerHTML='<div class="eyebrow">ECO CITY / V7</div>';
- tabs.forEach(x=>{const b=document.createElement('button');b.textContent=x.label;b.setAttribute('aria-current',String(x.key===v7Tab));b.onclick=()=>v7Navigate(x.key);nav.append(b);if(x.key===v7Tab)centre.append(x.node)});
+ if(st.host){tabs.forEach(x=>{const b=document.createElement('button');b.textContent=x.label;b.setAttribute('aria-current',String(x.key===v7Tab));b.onclick=()=>v7Navigate(x.key);nav.append(b);if(x.key===v7Tab)centre.append(x.node)})}else{
+ const order=st.me.phase==='choose'?['city','build','trade','research','maint']:st.me.phase==='quiz'?['quiz','results','city']:['final','reviewlast','results','city','board'];
+ const work=document.createElement('div');work.className='v7-workgrid';
+ order.forEach(key=>{const x=tabs.find(a=>a.key===key);if(x){if(['trade','research','maint'].includes(key))work.append(x.node);else centre.append(x.node)}});
+ if(work.children.length)centre.append(work);
+}
  const year=document.createElement('div');year.className='v7-year';year.textContent='SEASON '+st.year+' / '+st.totalRounds;nav.append(year);
  // Preserve all non-tab content rather than silently dropping unknown sections.
  parts.filter(p=>!tabs.some(x=>x.node===p)&&p!==news&&!p.parentElement?.classList.contains('v7-side')).forEach(p=>{if(p.parentElement===app)centre.append(p)});
  if(st.phase==='playing'){const timer=document.createElement('div');timer.id='v7-timer';timer.className='v7-timer';timer.innerHTML='<small>ROUND TIME</small><strong id="v7-clock">05:00</strong>';hud.append(timer)}
- app.replaceChildren(shell);shell.append(hud,nav,centre,side);v7Tick();centre.scrollTop=v7Scroll[v7Tab]||0;
+ app.replaceChildren(shell);shell.append(hud,nav,centre,side);v7Tick();const qkey=st.host?'':st.pin+':'+st.year+':'+st.me.phase+':'+st.me.q;if(!st.host&&qkey!==quizSeen&&st.me.phase==='quiz'){centre.scrollTop=0}else centre.scrollTop=v7Scroll[v7Tab]||0;quizSeen=qkey;
 };
 
 function v7Tick(){const clock=$('v7-clock'),box=$('v7-timer');if(!clock||!st)return;const n=st.deadline?Math.max(0,Math.ceil((st.deadline-Date.now())/1000)):0;clock.textContent=st.timedOut?'TIME UP':!st.deadline?'CLOSED':String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');box.classList.toggle('urgent',!!st.deadline&&n<=60);box.classList.toggle('expired',!!st.timedOut);}
