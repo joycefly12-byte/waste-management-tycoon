@@ -72,7 +72,7 @@ input,select,textarea{color:#203b33}input::placeholder,textarea::placeholder{col
 @media(min-width:1500px){.v7-shell.student .v7-planning .planning-build .grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:1100px){.v7-planning{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.v7-planning .planning-build .tile p{font-size:11px}}
 @media(max-width:950px){.v7-planning{grid-template-columns:1fr}.v7-shell.student .v7-planning .planning-build .grid{grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}}
-</style><header><small>YEAR 9 SCIENCE · SUSTAINABLE FUTURES · V7</small><h1>Waste Management Tycoon</h1>Build smarter. Trade resources. Protect your future.</header><main><div id="error" role="status"></div><div id="app"></div></main><script>
+.v7-main .question button.quiz-next{background:#087d68;color:white;text-align:center;width:auto;min-width:180px;margin:14px 0 0 auto;padding:12px 20px}.v7-main .question button.quiz-next:hover{background:#075f51}</style><header><small>YEAR 9 SCIENCE · SUSTAINABLE FUTURES · V7</small><h1>Waste Management Tycoon</h1>Build smarter. Trade resources. Protect your future.</header><main><div id="error" role="status"></div><div id="app"></div></main><script>
 const $=x=>document.getElementById(x),esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let session=null,st=null,pick=[],busy=false,polling=false,last='';try{session=JSON.parse(sessionStorage.getItem('tycoon'))}catch{};
 async function api(op,more={}){let r=await fetch('/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op,...session,...more})}),d=await r.json();if(!r.ok)throw Error(d.error);return d}
 function showError(e){$('error').textContent=e.message||String(e)}
@@ -140,7 +140,11 @@ function answerReview(f){
 if(!f||f.retry||!Array.isArray(f.options))return '';
 return '<div class="quiz-review"><h3>Question '+(f.q+1)+' feedback</h3><p>'+esc(f.question)+'</p>'+f.options.map((x,i)=>'<button disabled class="alt '+(i===f.correct?'answer-correct':i===f.choice||i===f.previousWrong?'answer-wrong':'')+'">'+esc(x)+(i===f.correct?' — Correct answer':i===f.choice||i===f.previousWrong?' — Incorrect choice':'')+'</button>').join('')+'<p class="quiz-message">'+esc(f.text)+'</p></div>';
 }
-let quizSeen='';
+let quizSeen='',dismissedReview='';
+function reviewKey(f){return [session?.key,st.year,f?.q].join(':')}
+function nextQuizQuestion(){dismissedReview=reviewKey(st.me.feedback);render();const main=document.querySelector('.v7-main');if(main)main.scrollTop=0}
+function reviewPanel(f){return answerReview(f)+'<button class="quiz-next" onclick="nextQuizQuestion()">'+(st.me.phase==='quiz'?'Next question →':'Finish science challenge →')+'</button>'}
+
 let v7Tab='',v7Context='',v7Scroll={};
 const v6Render=render;
 function v7Navigate(key){const old=document.querySelector('.v7-main');if(old)v7Scroll[v7Tab]=old.scrollTop;v7Tab=key;render()}
@@ -182,8 +186,8 @@ render=function(){
   if(quiz){
    const f=t.feedback;
    if(f?.retry&&f.q===t.q){const buttons=quiz.querySelectorAll('button');const wrong=buttons[f.choice];if(wrong){wrong.classList.add('answer-wrong');wrong.disabled=true;wrong.textContent+=' — Incorrect choice'}const msg=document.createElement('p');msg.className='quiz-message';msg.textContent=f.text;quiz.append(msg)}
-   else if(f?.options)quiz.insertAdjacentHTML('afterbegin',answerReview(f));
-  }else if(t.feedback?.options){const review=document.createElement('section');review.className='question';review.innerHTML=answerReview(t.feedback);add('reviewlast','Last question feedback',review)}
+   else if(f?.options&&dismissedReview!==reviewKey(f)){quiz.innerHTML='<div class="tag">Science challenge · Answer feedback</div>'+reviewPanel(f);}
+  }else if(t.feedback?.options&&dismissedReview!==reviewKey(t.feedback)&&st.phase==='playing'){const review=document.createElement('section');review.className='question';review.innerHTML=reviewPanel(t.feedback);add('reviewlast','Last question feedback',review)}
   if(city)city.querySelectorAll('.city > span').forEach((el,i)=>{
    el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label',st.assets[i].n+' — view facility');
    const go=()=>{if(t.phase!=='choose')return;const target=t.damaged?.includes(i)?maint:t.owned.includes(i)?research:invest;const item=t.damaged?.includes(i)?target:t.owned.includes(i)?target?.querySelectorAll('.upgrade-row')[t.owned.indexOf(i)]:target?.querySelectorAll('.tile')[i];(item||target)?.scrollIntoView({block:'nearest',behavior:'smooth'})};
