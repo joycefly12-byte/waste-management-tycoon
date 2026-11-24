@@ -52,6 +52,26 @@ input,select,textarea{color:#203b33}input::placeholder,textarea::placeholder{col
 .quiz-review{border:1px solid #a5b49b;border-radius:8px;padding:14px;margin:12px 0;background:#f8f7eb}.quiz-review h3{font-size:16px}.quiz-review p{margin:6px 0}.quiz-review button:disabled{cursor:default;opacity:1}.quiz-message{font-weight:650;padding:10px;background:#f7e8c9;color:#573b22;border-radius:5px}
 @media(max-width:1000px){.v7-shell.student{grid-template-columns:minmax(0,1fr) 320px}.v7-workgrid{grid-template-columns:1fr}}
 @media(max-width:850px){.v7-shell.student{grid-template-columns:1fr;height:auto}.v7-shell.student .v7-main{grid-column:1;grid-row:3}.v7-shell.student .v7-side{grid-column:1;grid-row:2}.v7-shell.student .v7-map .district-map{min-height:320px}}
+
+/* Compact side-by-side city planning */
+.v7-planning{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:12px;align-items:start;margin-bottom:12px}
+.v7-planning>section{min-width:0;margin:0}
+.v7-shell.student .v7-planning .planning-map .district-map{width:100%;max-width:none;max-height:none;aspect-ratio:1.5;min-height:310px}
+.v7-planning .planning-build{padding:12px}
+.v7-planning .planning-build h2{font-size:17px;margin:0 0 6px}
+.v7-planning .planning-build>p{font-size:12px;margin:6px 0 10px}
+.v7-shell.student .v7-planning .planning-build .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.v7-planning .planning-build .tile{padding:8px;gap:3px;min-width:0}
+.v7-planning .planning-build .tile h3{font-size:13px;line-height:1.25;margin:0;overflow-wrap:anywhere}
+.v7-planning .planning-build .tile b{font-size:12px}
+.v7-planning .planning-build .tile p{font-size:11px;line-height:1.3;margin:2px 0}
+.v7-planning .planning-build .tile small{font-size:10px;line-height:1.25}
+.v7-planning .planning-build .art{height:44px}
+.v7-planning .planning-build .art svg{height:44px;width:auto;max-width:100%}
+.v7-planning .planning-build .tile button{font-size:12px;padding:6px 4px;min-height:30px}
+@media(min-width:1500px){.v7-shell.student .v7-planning .planning-build .grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1100px){.v7-planning{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.v7-planning .planning-build .tile p{font-size:11px}}
+@media(max-width:950px){.v7-planning{grid-template-columns:1fr}.v7-shell.student .v7-planning .planning-build .grid{grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}}
 </style><header><small>YEAR 9 SCIENCE · SUSTAINABLE FUTURES · V7</small><h1>Waste Management Tycoon</h1>Build smarter. Trade resources. Protect your future.</header><main><div id="error" role="status"></div><div id="app"></div></main><script>
 const $=x=>document.getElementById(x),esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let session=null,st=null,pick=[],busy=false,polling=false,last='';try{session=JSON.parse(sessionStorage.getItem('tycoon'))}catch{};
 async function api(op,more={}){let r=await fetch('/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op,...session,...more})}),d=await r.json();if(!r.ok)throw Error(d.error);return d}
@@ -176,7 +196,9 @@ render=function(){
  if(st.host){tabs.forEach(x=>{const b=document.createElement('button');b.textContent=x.label;b.setAttribute('aria-current',String(x.key===v7Tab));b.onclick=()=>v7Navigate(x.key);nav.append(b);if(x.key===v7Tab)centre.append(x.node)})}else{
  const order=st.me.phase==='choose'?['city','build','maint','research','trade']:st.me.phase==='quiz'?['quiz','results','city']:['final','reviewlast','results','city','board'];
  const work=document.createElement('div');work.className='v7-workgrid';
- order.forEach(key=>{const x=tabs.find(a=>a.key===key);if(x){if(['trade','research','maint'].includes(key))work.append(x.node);else centre.append(x.node)}});
+ const planning=document.createElement('div');planning.className='v7-planning';
+ order.forEach(key=>{const x=tabs.find(a=>a.key===key);if(x){if(st.me.phase==='choose'&&(key==='city'||key==='build')){x.node.classList.add(key==='city'?'planning-map':'planning-build');planning.append(x.node)}else if(['trade','research','maint'].includes(key))work.append(x.node);else centre.append(x.node)}});
+ if(planning.children.length)centre.append(planning);
  if(work.children.length)centre.append(work);
 }
  const year=document.createElement('div');year.className='v7-year';year.textContent='SEASON '+st.year+' / '+st.totalRounds;nav.append(year);
