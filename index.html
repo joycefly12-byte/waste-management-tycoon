@@ -247,7 +247,7 @@ render=function(){
  const year=document.createElement('div');year.className='v7-year';year.textContent='SEASON '+st.year+' / '+st.totalRounds;nav.append(year);
  // Preserve all non-tab content rather than silently dropping unknown sections.
  parts.filter(p=>!tabs.some(x=>x.node===p)&&p!==news&&!p.parentElement?.classList.contains('v7-side')).forEach(p=>{if(p.parentElement===app)centre.append(p)});
- if(st.phase==='playing'){const timer=document.createElement('div');timer.id='v7-timer';timer.className='v7-timer';timer.innerHTML='<small>ROUND TIME</small><strong id="v7-clock">02:00</strong>';hud.append(timer)}
+ if(st.phase==='playing'){const timer=document.createElement('div');timer.id='v7-timer';timer.className='v7-timer';timer.innerHTML='<small>ROUND TIME</small><strong id="v7-clock">03:00</strong>';hud.append(timer)}
  app.replaceChildren(shell);shell.append(hud,nav,centre,side);v7Tick();const existingNews=$('round-news');if(existingNews&&(st.phase!=='playing'||existingNews.dataset.year!==String(st.year))){existingNews.close();existingNews.remove()}roundAnnouncement();if($('round-news'))$('round-news').dataset.year=String(st.year);const qkey=st.host?'':st.pin+':'+st.year+':'+st.me.phase+':'+st.me.q;if(!st.host&&qkey!==quizSeen&&st.me.phase==='quiz'){centre.scrollTop=0}else centre.scrollTop=v7Scroll[v7Tab]||0;quizSeen=qkey;
 };
 
@@ -258,7 +258,7 @@ function roundAnnouncement(){
  if(sessionStorage.getItem(key))return;
  if(document.getElementById('round-news'))return;
  const d=document.createElement('dialog');d.id='round-news';d.className='round-news';
- d.innerHTML='<div class="tag">City news · Year '+st.year+' of '+st.totalRounds+'</div><div class="news-symbol" aria-hidden="true">▰</div><h2>'+esc(st.event.t)+'</h2><p>'+esc(st.event.d)+'</p><p class="news-question">'+esc(st.event.q)+'</p><small>Round timer is running · 2 minutes maximum</small><button>Enter year '+st.year+' →</button>';
+ d.innerHTML='<div class="tag">City news · Year '+st.year+' of '+st.totalRounds+'</div><div class="news-symbol" aria-hidden="true">▰</div><h2>'+esc(st.event.t)+'</h2><p>'+esc(st.event.d)+'</p><p class="news-question">'+esc(st.event.q)+'</p><small>Round timer is running · 3 minutes maximum</small><button>Enter year '+st.year+' →</button>';
  const dismiss=()=>{sessionStorage.setItem(key,'1');d.close();d.remove()};
  d.querySelector('button').onclick=dismiss;d.addEventListener('cancel',e=>{e.preventDefault();dismiss()});document.body.append(d);d.showModal();
 }
